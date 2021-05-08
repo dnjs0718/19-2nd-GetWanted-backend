@@ -16,16 +16,20 @@ class NotificationView(View):
             search           = request.GET.get('search', None)
             notification_zip = Notification.objects.select_related('company').prefetch_related('image_set','like_set').all()
 
+            q = Q()
+
             if search:
-                notification_zip = Notification.objects.select_related('company').prefetch_related('image_set').filter(Q(title__icontains=search) | Q(company__name__icontains=search))
+                q &= (Q(title__icontains=search) | Q(company__name__icontains=search))
 
             if tag:
                 if not Tag.objects.filter(id=tag).exists():
                     return JsonResponse({'MESSAGE': 'TAG_DOES_NOT_EXIST'},status=404)
-                notification_zip  = Notification.objects.select_related('company').prefetch_related('image_set','tag').filter(tag__id=tag)
+                q &= Q(tag__id=tag)
+            
+            notification_zip = Notification.objects.filter(q)
 
-            paginator     = Paginator(notification_zip,16)
-            notifications = paginator.get_page(page)
+            paginator        = Paginator(notification_zip,16)
+            notifications    = paginator.get_page(page)
 
             notification_list = [{
                 'title'      : notification.title,
@@ -40,7 +44,7 @@ class NotificationView(View):
 
         except ValueError:
             return JsonResponse({'MESSAGE': 'VALUE_ERROR'},status = 400)
-
+            
 class TagView(View):
     def get(self,request):
         tags = Tag.objects.all()
