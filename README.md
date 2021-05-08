@@ -69,8 +69,33 @@
     + django 내장된 모듈(EmailMessage) 활용
 
 ## 🔧 Skills
-- ![Python](https://img.shields.io/badge/Python-14354C?style=for-the-badge&logo=python&logoColor=white)
-- ![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)
+
+### Framework
+- Django
+### Language
+- Python
+### DB
+- Mysql
+- RDS
+- AqueryTool
+- CSV
+- db_uploader
+### 배포 및 통신
+- Docker
+- EC2
+- S3
+- Postman
+- httpie
+- JSON
+### 기타
+- Google Geocoder
+- Kakao social login API
+- Google social login API
+- Naver social login API
+- JWT
+- bcrypt
+- corsheaders
+- transaction
 
 ## 🔧 Tools
 - <img alt="Trello" src="https://img.shields.io/badge/Trello-%23026AA7.svg?&style=for-the-badge&logo=Trello&logoColor=white"/>
