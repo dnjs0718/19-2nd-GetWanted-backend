@@ -9,12 +9,25 @@
 
 
 ## 👩🏻‍💻 Back-end Work Details
+### 공통
+* Aquery Tool을 이용한 모델링
+
+* git rebase를 활용한 효율적인 커밋 관리
+
+* API document, Trello를 이용한 양방향 소통
+
+
 
 ### 원재연(PM)
 * 공고 리스트 구현
-  - 검색 기능 구현 (회사 검색 가능, 공고명 검색가능, icontains를 활용한 단어검색 가능)
-  - 좋아요 기능 구현 (공고에 해당하는 좋아요 수 집계, 데이터베이스 효율성을 높이기 위해 좋아요를 추가하고 삭제할 때 마다 create,delete가 아닌 is_liked column을 추가하여 효율적으로 데이터베이스 관리)
-  - 태그를 통한 필터링 구현 (태그에 해당하는 공고 리스트 response)
+  - 검색 기능 구현
+    + 회사 검색 가능
+    + 공고명 검색가능
+    + icontains를 활용한 단어검색 가능
+  - 좋아요 기능 구현
+    + 공고에 해당하는 좋아요 수 집계
+    + 데이터베이스 효율성을 높이기 위해 create,delete가 아닌 ```is_liked``` column을 추가하여 데이터베이스 관리
+  - 태그를 통한 필터링 구현
   
 * 공고 상세정보 구현
   - GOOGLE geocoder를 이용한 회사의 위도 및 경도 추출
@@ -33,19 +46,27 @@
 * 작성한 이력서 저장하기
 
 * 이력서 PDF 업로드
+  - S3를 활용한 PDF 업로드
 
 * 업로드 한 이력서 PDF 다운로드
 
 * 작성 한 이력서 PDF 변환 후 다운로드
 
+
 * 이력서 목록 불러오기
+  - 해당 유저 정보를 확인 하여 유저가 작성 및 업로드한 이력서 목록 불러오기
 
 ### 정재유
 * 회원가입 및 로그인
+  - 자주 사용하는 로직 모듈화
   - bcrypt 암호화
   - JWT 액세스 토큰 발행
-  - 소셜 로그인 구현(카카오,구글,네이버)
-  - 초기화 된 비밀번호 이메일 전송 (비밀번호 찾기)
+  - 소셜 로그인 구현
+    + KAKAO
+    + GOOGLE
+    + NAVER
+  - 초기화 된 비밀번호 이메일 전송
+    + django 내장된 모듈(EmailMessage) 활용
 
 ## 🔧 Skills
 - ![Python](https://img.shields.io/badge/Python-14354C?style=for-the-badge&logo=python&logoColor=white)
