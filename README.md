@@ -1,6 +1,6 @@
 # 19-2nd-GetWanted-backend
 
-# Project <GetWanted/>
+# Project ```<GetWanted/>```
 
 ## 🖥 Project Summary
 - 2021.04.26 ~ 2021.05.07 까지 2주 간 진행
