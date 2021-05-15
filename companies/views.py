@@ -4,6 +4,7 @@ from django.views          import View
 from django.http           import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models      import Q
+from django.db             import connection
 
 from .models               import Notification, Tag, Like
 from users.utils           import login_required
@@ -14,7 +15,6 @@ class NotificationView(View):
             tag              = request.GET.get('tag',None)
             page             = request.GET.get('page',1)
             search           = request.GET.get('search', None)
-            notification_zip = Notification.objects.select_related('company').prefetch_related('image_set','like_set').all()
 
             q = Q()
 
@@ -26,7 +26,7 @@ class NotificationView(View):
                     return JsonResponse({'MESSAGE': 'TAG_DOES_NOT_EXIST'},status=404)
                 q &= Q(tag__id=tag)
             
-            notification_zip = Notification.objects.filter(q)
+            notification_zip = Notification.objects.select_related('company').prefetch_related('image_set','like_set').filter(q)
 
             paginator        = Paginator(notification_zip,16)
             notifications    = paginator.get_page(page)
@@ -39,8 +39,13 @@ class NotificationView(View):
                 'company'    : notification.company.name,
                 'like_count' : notification.like_set.filter(is_liked=1).count()
                 } for notification in notifications]
+            
+            print(len(connection.queries))
+
+            
 
             return JsonResponse({'notification_list' : notification_list, 'total' : len(notification_zip)}, status = 200)
+
 
         except ValueError:
             return JsonResponse({'MESSAGE': 'VALUE_ERROR'},status = 400)
@@ -75,6 +80,7 @@ class NotificationDetailView(View):
                 'latitude'        : notification.company.latitude,
                 'longitude'       : notification.company.longitude 
                 }]
+                
             return JsonResponse({'NOTIFICATION_DETAIL' : notification_detail}, status=200)
 
         except Notification.DoesNotExist:
