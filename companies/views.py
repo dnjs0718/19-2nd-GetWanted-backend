@@ -40,7 +40,7 @@ class NotificationView(View):
                 'like_count' : notification.like_set.filter(is_liked=1).count()
                 } for notification in notifications]
 
-            return JsonResponse({'notification_list' : notification_list, 'total' : len(notification_zip)}, status = 200)
+            return JsonResponse({'notification_list' : notification_list, 'page' : paginator.num_pages}, status = 200)
 
         except ValueError:
             return JsonResponse({'MESSAGE': 'VALUE_ERROR'},status = 400)
