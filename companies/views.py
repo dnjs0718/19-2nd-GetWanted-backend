@@ -5,6 +5,7 @@ from django.http           import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models      import Q
 from django.db             import connection
+from django.shortcuts      import get_object_or_404
 
 from .models               import Notification, Tag, Like
 from users.utils           import login_required
@@ -12,9 +13,9 @@ from users.utils           import login_required
 class NotificationView(View):
     def get(self,request):
         try:
-            tag              = request.GET.get('tag',None)
+            tag              = request.GET.get('tag')
             page             = request.GET.get('page',1)
-            search           = request.GET.get('search', None)
+            search           = request.GET.get('search')
 
             q = Q()
 
@@ -22,8 +23,7 @@ class NotificationView(View):
                 q &= (Q(title__icontains=search) | Q(company__name__icontains=search))
 
             if tag:
-                if not Tag.objects.filter(id=tag).exists():
-                    return JsonResponse({'MESSAGE': 'TAG_DOES_NOT_EXIST'},status=404)
+                get_object_or_404(Tag,id=tag)
                 q &= Q(tag__id=tag)
             
             notification_zip = Notification.objects.select_related('company').prefetch_related('image_set','like_set').filter(q)
@@ -39,16 +39,12 @@ class NotificationView(View):
                 'company'    : notification.company.name,
                 'like_count' : notification.like_set.filter(is_liked=1).count()
                 } for notification in notifications]
-            
-            print(len(connection.queries))
-
-            
 
             return JsonResponse({'notification_list' : notification_list, 'total' : len(notification_zip)}, status = 200)
 
-
         except ValueError:
             return JsonResponse({'MESSAGE': 'VALUE_ERROR'},status = 400)
+
             
 class TagView(View):
     def get(self,request):
@@ -59,6 +55,7 @@ class TagView(View):
         } for tag in tags]
 
         return JsonResponse({'tag_list': tag_list}, status=200)
+
 
 class NotificationDetailView(View):
     def get(self,request,notification_id):
@@ -86,6 +83,7 @@ class NotificationDetailView(View):
         except Notification.DoesNotExist:
             return JsonResponse({'MESSAGE' : 'NOTIFICATION_DOES_NOT_EXIST'},status=404)
 
+
 class NotificationLikeView(View):
     @login_required
     def post(self,request):
@@ -93,21 +91,35 @@ class NotificationLikeView(View):
             data             = json.loads(request.body)
             notification     = Notification.objects.get(id=data['notification'])
             user             = request.user
+            liked            = Like.objects.select_related('notification','user').filter(
+                                user=user,
+                                notification=notification,
+                                is_liked=1)
+            unliked          = Like.objects.select_related('notification','user').filter(
+                                user=user, 
+                                notification=notification, 
+                                is_liked=0)
 
-            if Like.objects.select_related('notification','user').filter(user=user, notification=notification, is_liked=1).exists():
-                Like.objects.select_related('notification','user').filter(user=user, notification=notification, is_liked=1).update(is_liked=0)
+            if liked.exists():
+                liked.update(is_liked=0)
 
-                return JsonResponse({'MESSAGE': 'UNLIKED', 'LIKE_COUNT': notification.like_set.filter(is_liked=1).count()}, status=201)
+                return JsonResponse({'MESSAGE': 'UNLIKED',
+                                     'LIKE_COUNT': notification.like_set.filter(is_liked=1).count()}, 
+                                     status=201)
             
-            if Like.objects.select_related('notification','user').filter(user=user, notification=notification, is_liked=0).exists():
-                Like.objects.select_related('notification','user').filter(user=user, notification=notification, is_liked=0).update(is_liked=1)
+            if unliked.exists():
+                unliked.update(is_liked=1)
 
-                return JsonResponse({'MESSAGE': 'LIKED','LIKE_COUNT': notification.like_set.filter(is_liked=1).count()}, status=201)
+                return JsonResponse({'MESSAGE': 'LIKED',
+                                     'LIKE_COUNT': notification.like_set.filter(is_liked=1).count()}, 
+                                     status=201)
 
             else:
                 Like.objects.create(user=user, notification=notification, is_liked=1)
 
-                return JsonResponse({'MESSAGE': 'LIKED','LIKE_COUNT': notification.like_set.filter(is_liked=1).count()}, status=201)
+                return JsonResponse({'MESSAGE': 'LIKED',
+                                     'LIKE_COUNT': notification.like_set.filter(is_liked=1).count()},
+                                      status=201)
 
         except Notification.DoesNotExist:
             return JsonResponse({"MESSAGE": "NOTIFICATION_DOES_NOT_EXIST"}, status=404)
