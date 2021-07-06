@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     #'django.contrib.admin',
-    #'django.contrib.auth',
+    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
     'resumes',
-    'companies'
+    'companies',
+    'drf_yasg'
 ]
 
 MIDDLEWARE = [
@@ -156,3 +157,13 @@ EMAIL_HOST_USER = my_settings.google_email
 EMAIL_HOST_PASSWORD = my_settings.google_password
 SERVER_EMAIL = my_settings.google_email
 DEFAULT_FROM_MAIL = 'GetWanted'
+
+SWAGGER_SETTINGS = {
+      'SECURITY_DEFINITIONS': {
+         'DRF Token': {
+               'type': 'apiKey',
+               'name': 'Authorization',
+               'in': 'header'
+         }
+      }
+   }

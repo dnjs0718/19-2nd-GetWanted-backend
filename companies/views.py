@@ -10,7 +10,20 @@ from django.shortcuts      import get_object_or_404
 from .models               import Notification, Tag, Like
 from users.utils           import login_required
 
-class NotificationView(View):
+from rest_framework.views import APIView
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from rest_framework import status, permissions, serializers
+
+
+class NotificationSerializer(serializers.Serializer):
+    tag = serializers.IntegerField(help_text="태그 필터링", required=False)
+    page = serializers.IntegerField(help_text="페이지", default=1, required=False)
+    search = serializers.CharField(help_text="검색어", required=False)
+
+
+class NotificationView(APIView):
+    @swagger_auto_schema(query_serializer=NotificationSerializer)
     def get(self,request):
         try:
             tag              = request.GET.get('tag')
@@ -46,7 +59,15 @@ class NotificationView(View):
             return JsonResponse({'MESSAGE': 'VALUE_ERROR'},status = 400)
 
             
-class TagView(View):
+class TagView(APIView):
+    """
+        태그를 나타내는 API
+
+        ---
+        # 내용
+            - id : PK 값
+            - name : 태그 이름
+    """
     def get(self,request):
         tags = Tag.objects.all()
         tag_list =[{
@@ -57,7 +78,14 @@ class TagView(View):
         return JsonResponse({'tag_list': tag_list}, status=200)
 
 
-class NotificationDetailView(View):
+class DetailSerializer(serializers.Serializer):
+    notification_id = serializers.IntegerField(help_text='공고 PK', required=True)
+
+
+class NotificationDetailView(APIView):
+    # notification_id = openapi.Parameter('notification_id', openapi.IN_PATH, description='공고 ID', required=True, type=openapi.TYPE_NUMBER)
+    # @swagger_auto_schema(manual_parameters=[notification_id])
+    @swagger_auto_schema(path_serializer=DetailSerializer)
     def get(self,request,notification_id):
         try:
             notification    = Notification.objects.select_related('company').prefetch_related('image_set','tag').get(id=notification_id)
@@ -83,8 +111,11 @@ class NotificationDetailView(View):
         except Notification.DoesNotExist:
             return JsonResponse({'MESSAGE' : 'NOTIFICATION_DOES_NOT_EXIST'},status=404)
 
+class ContactForm(serializers.Serializer):
+    notification = serializers.IntegerField()
 
-class NotificationLikeView(View):
+class NotificationLikeView(APIView):
+    @swagger_auto_schema(request_body=ContactForm)
     @login_required
     def post(self,request):
         try:
