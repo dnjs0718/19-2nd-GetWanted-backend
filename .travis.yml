@@ -1,12 +1,6 @@
 language: python
 python:
-  - "3.9.5"
+  - "3.9"
 
 install:
  - pip install pymysql
-
-# command to run tests
-script:
- - py.test
-
-
